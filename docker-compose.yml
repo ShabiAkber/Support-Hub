@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:alpine
+    container_name: support_hub_db
+    environment:
+      POSTGRES_DB: support_hub_db
+      POSTGRES_USER: support_user
+      POSTGRES_PASSWORD: support_pass
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U support_user -d support_hub_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - support_hub_network
+    restart: always
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: support_hub_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: pgadmin@support.com
+      PGADMIN_DEFAULT_PASSWORD: pgadmin
+    ports:
+      - "5051:80"
+    depends_on:
+      - postgres
+    networks:
+      - support_hub_network
+    restart: always
+
+volumes:
+  postgres_data:
+
+networks:
+  support_hub_network: 
